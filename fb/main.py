@@ -1,4 +1,5 @@
 import sys
+import json
 from fb.scraper import FBScraper
 
 
@@ -8,6 +9,7 @@ access_token = sys.argv[3]
 
 file = open('fb/pages.csv')
 pages = [row.strip().split(',') for row in file]
+file.close()
 pages = [{'id': page[1], 'name': page[0]} for page in pages]
 
 scraper = FBScraper(app_id, app_secret, access_token)
@@ -16,10 +18,15 @@ scraper = FBScraper(app_id, app_secret, access_token)
 for page in pages:
     # TODO: call asynchronously
     page['posts'] = scraper.get_posts(page['id'])
+
     print(str(len(page['posts'])) + ' posts scraped')
-    print()
-    for post in page['posts']:
-        if 'message' in post:
-            print(post['message'])
-        else:
-            print('ERR: no message')
+    # print()
+    # for post in page['posts']:
+    #     if 'message' in post:
+    #         print(post['message'])
+    #     else:
+    #         print('ERR: no message')
+
+# Write data to a file
+with open('fb_data.json', 'w') as outfile:
+    json.dump(pages, outfile)
