@@ -5,7 +5,7 @@ import sys
 from enum import Enum
 
 
-POSTS_PER_PAGE = 100
+POSTS_PER_PAGE = 500
 
 
 class FBScraper:

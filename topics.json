@@ -1,0 +1,79 @@
+[
+  {
+    "tag": "abortion",
+    "keywords": [
+      "abortion",
+      "pro-choice",
+      "pro-life",
+      "contraceptives"
+    ]
+  },
+  {
+    "tag": "climate",
+    "keywords": [
+      "climate",
+      "global warming",
+      "atmosphere"
+    ]
+  },
+  {
+    "tag": "immigration",
+    "keywords": [
+      "immigration",
+      "immigrant",
+      "border"
+    ]
+  },
+  {
+    "tag": "epa",
+    "keywords": [
+      "epa",
+      "pollution"
+    ]
+  },
+  {
+    "tag": "gender equality",
+    "keywords": [
+      "gender equality"
+    ]
+  },
+  {
+    "tag": "gay rights",
+    "keywords": [
+      "gay",
+      "lesbian",
+      "homosexual",
+      "same sex",
+      "marriage equality"
+    ]
+  },
+  {
+    "tag": "guns",
+    "keywords": [
+      "gun",
+      "guns"
+    ]
+  },
+  {
+    "tag": "digital privacy",
+    "keywords": [
+      "digital privacy"
+    ]
+  },
+  {
+    "tag": "marijuana",
+    "keywords": [
+      "marijuana",
+      "weed",
+      "pot",
+      "cannabis"
+    ]
+  },
+  {
+    "tag": "healthcare",
+    "keywords": [
+      "healthcare",
+      "obamacare"
+    ]
+  }
+]
