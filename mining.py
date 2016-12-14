@@ -3,8 +3,28 @@ from pymining import itemmining
 import csv
 
 
-MIN_SUP = 0.2
-MAX_SUP = 0.05
+def mine_frequent(transactions, min_freq):
+
+    # Find frequent itemsets in transactions
+    input = itemmining.get_relim_input(transactions)
+    min_sup = int(round(min_freq * len(transactions)))
+    return itemmining.relim(input, min_support=min_sup)
+
+
+def mine_interesting_and_frequent(transactions, opposing_transactions, min_freq, max_freq):
+
+    # Find frequent itemsets in transactions
+    frequent_itemsets = mine_frequent(transactions, min_freq)
+
+    # Find frequent itemsets in opposing set using max_freq as min_freq
+    frequent_opposing_itemsets = mine_frequent(opposing_transactions, max_freq)
+
+    return {k: v for k, v in frequent_itemsets.items() if k not in frequent_opposing_itemsets}
+
+
+# Note: MAX_OPPOSING_FREQ should less than or equal to MIN_FREQ
+MIN_FREQ = 0.1
+MAX_OPPOSING_FREQ = 0.1
 
 with open('fb/fb_data.csv') as file:
     reader = csv.reader(file, delimiter=',', escapechar='\\')
@@ -31,14 +51,43 @@ ineffective_data = [row for row in data if not row[effective_col]]
 effective_text = [text_to_list(row[text_col], True) for row in effective_data]
 ineffective_text = [text_to_list(row[text_col], True) for row in ineffective_data]
 
-# Find frequent itemsets in effective posts
-relim_input = itemmining.get_relim_input(effective_text)
-report = itemmining.relim(relim_input, min_support=int(round(len(effective_text) * MIN_SUP)))
-print(report)
+# Find frequent itemsets in both sets
+frequent_effective = mine_frequent(effective_text, MIN_FREQ)
+frequent_ineffective = mine_frequent(ineffective_text, MIN_FREQ)
 
-# Find frequent itemsets in ineffective posts
-relim_input = itemmining.get_relim_input(ineffective_text)
-report = itemmining.relim(relim_input, min_support=int(round(len(ineffective_text) * MIN_SUP)))
-print(report)
+# Find interesting frequent itemsets
+interesting_effective = mine_interesting_and_frequent(effective_text, ineffective_text, MIN_FREQ, MAX_OPPOSING_FREQ)
+interesting_ineffective = mine_interesting_and_frequent(ineffective_text, effective_text, MIN_FREQ, MAX_OPPOSING_FREQ)
 
-# Throw away frequent itemsets at the intersection
+
+print('Frequent in effective posts:')
+for itemset in frequent_effective:
+    print('\t' + str(set(itemset)))
+
+print('Interesting in effective posts:')
+for itemset in interesting_effective:
+    print('\t' + str(set(itemset)))
+
+print('Frequent in ineffective posts:')
+for itemset in frequent_ineffective:
+    print('\t' + str(set(itemset)))
+
+print('Interesting in ineffective posts:')
+for itemset in interesting_ineffective:
+    print('\t' + str(set(itemset)))
+
+# print('Frequent in effective posts:')
+# for k, v in frequent_effective.items():
+#     print('\t' + str(set(k)) + ':' + str(v))
+#
+# print('Interesting in effective posts:')
+# for k, v in interesting_effective.items():
+#     print('\t' + str(set(k)) + ':' + str(v))
+#
+# print('Frequent in ineffective posts:')
+# for k, v in frequent_ineffective.items():
+#     print('\t' + str(set(k)) + ':' + str(v))
+#
+# print('Interesting in ineffective posts:')
+# for k, v in interesting_ineffective.items():
+#     print('\t' + str(set(k)) + ':' + str(v))
