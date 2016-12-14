@@ -1,6 +1,8 @@
 import json
 import csv
+import string
 from fb.scraper import Reaction
+from nltk.corpus import stopwords
 
 
 NEG_THRESHOLD = 0.1
@@ -32,37 +34,34 @@ def format_post(post):
     effective = is_effective(post)
 
     # Format the post
-    return post['from']['id'], post['topic'], format_text(post['message']), effective
+    return post['from']['id'], post['topic'], post['message'], effective
 
 
-def format_text(text):
+def text_to_list(text, remove_stop_words):
     """
-    Text prepocessing, such as removing punctuation, possessive 's, and de-capitalization.
-    :param story:
+    Converts text to a list of words, with punctuation removed and all words lowercased
+    :param text:
+    :param remove_stop_words:
     :return:
     """
+    # Remove punctuation
+    # http://stackoverflow.com/questions/265960/best-way-to-strip-punctuation-from-a-string-in-python
+    # TODO: remove apostrophe and hyphen?
+    text = text.translate(str.maketrans('', '', string.punctuation.replace("'", '').replace('-', '')))
 
-    return text
+    # Split words and convert to lower case
+    words = [word.lower() for word in text.split(' ')]
 
-    # # Remove punctuation
-    # text = text.replace('.', '').replace('?', '').replace(',', '').replace('!', '').replace(':')
-    #
-    # # # TODO: remove possession?
-    # # # Remove possession
-    # # story = story.replace("'s", "")
-    #
-    # # Convert to lower case
-    # text = ','.join([word.lower() for word in text.split(' ')])
-    # return '[' + text + ']'
+    if remove_stop_words:
+        words = [word for word in words if word not in stopwords.words('english')]
+
+    return words
 
 
 def contains(text, keyword):
 
-    # Remove punctuation
-    text = text.replace('.', '').replace('?', '').replace(',', '').replace('!', '').replace(':', '').replace('"', '')
-
-    # Split words and convert to lower case
-    words = [word.lower() for word in text.split(' ')]
+    # Get individual words, lowercased
+    words = text_to_list(text, False)
 
     # Search the text
     try:
@@ -86,19 +85,19 @@ def is_effective(post):
 
     return effective
 
-# with open('fb_data.json') as file:
-#     posts = [format_post(post) for post in json.load(file)]
 
-with open('../topics.json') as file:
-    topics = json.load(file)
-file.close()
-posts = search_and_tag('fb_data.json', topics)
-posts = [format_post(post) for post in posts]
+if __name__ == "__main__":
 
-with open('fb_data.csv', 'w') as file:
-    writer = csv.writer(file, delimiter=',', escapechar='\\', quoting=csv.QUOTE_MINIMAL)
-    writer.writerow(['author', 'topic', 'text', 'effective'])
-    for post in posts:
-        writer.writerow(post)
+    # with open('fb_data.json') as file:
+    #     posts = [format_post(post) for post in json.load(file)]
 
-file.close()
+    with open('../topics.json') as file:
+        topics = json.load(file)
+    posts = search_and_tag('fb_data.json', topics)
+    posts = [format_post(post) for post in posts]
+
+    with open('fb_data.csv', 'w') as file:
+        writer = csv.writer(file, delimiter=',', escapechar='\\', quoting=csv.QUOTE_MINIMAL)
+        writer.writerow(['author', 'topic', 'text', 'effective'])
+        for post in posts:
+            writer.writerow(post)
