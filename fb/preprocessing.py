@@ -6,6 +6,25 @@ from fb.scraper import Reaction
 NEG_THRESHOLD = 0.1
 
 
+def search(filename, keywords):
+    """
+    Searches the json file for posts that contain any of the given keywords
+    :param filename:
+    :param keywords:
+    :return:
+    """
+    matching_posts = []
+    with open(filename) as file:
+        posts = json.load(file)
+        for post in posts:
+            if 'message' in post:
+                for word in post['message'].split(' '):
+                    if word.lower() in keywords:
+                        matching_posts.append(post)
+                        break
+    return matching_posts
+
+
 def format_post(post):
 
     # Compute effectiveness
@@ -49,10 +68,11 @@ def is_effective(post):
 
     return effective
 
+# with open('fb_data.json') as file:
+#     posts = [format_post(post) for post in json.load(file)]
 
-with open('fb_data.json') as file:
-    posts = [format_post(post) for post in json.load(file)]
-
+posts = search('fb_data.json', ['abortion'])
+posts = [format_post(post) for post in posts]
 
 with open('fb_data.csv', 'w') as file:
     writer = csv.writer(file, delimiter=',', escapechar='\\', quoting=csv.QUOTE_MINIMAL)
