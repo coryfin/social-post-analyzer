@@ -1,12 +1,15 @@
 import facebook
 import requests
 import json
+import sys
 from enum import Enum
+
+
+POSTS_PER_PAGE = 25
 
 
 class FBScraper:
 
-    POSTS_PER_PAGE = 100
     LIMIT = '25'
     VERSION = 2.6
     FEED = 'feed'
@@ -15,32 +18,53 @@ class FBScraper:
         self.app_id = app_id
         self.app_secret = app_secret
         self.graph = facebook.GraphAPI(access_token=access_token, version=self.VERSION)
+        self._posts = []
 
     # TODO: make asynchronous
-    def get_posts(self, page_id):
+    def get_posts(self, page_id, num_posts):
+
+        print("Scraping posts for page id=" + str(page_id), end='...')
+
+        # fields = ['message', 'from', 'comments.limit({0})'.format(self.LIMIT)]
+        fields = ['message', 'from']
 
         response = self.graph.get_connections(
             id=page_id, connection_name=self.FEED, limit=self.LIMIT,
-            fields='message,comments.limit(' + self.LIMIT + '),reactions.limit(' + self.LIMIT + ')')
+            fields=','.join(fields))
 
-        # Process the posts (format fields, get additional comments, reactions, etc.)
-        posts = [self.process_post(post) for post in response['data']]
+        page_posts = response['data']
 
         # Go to the next page of posts
-        while len(posts) < self.POSTS_PER_PAGE and 'paging' in response and 'next' in response['paging']:
+        while len(page_posts) < num_posts and 'paging' in response and 'next' in response['paging']:
             next_url = response['paging']['next']
             response = json.loads(requests.get(next_url).text)
             if 'data' in response:
-                posts.extend([self.process_post(post) for post in response['data']])
+                page_posts.extend(response['data'])
 
-        return posts
+        # Process the posts (format fields, get additional comments, reactions, etc.)
+        for post in page_posts:
+            self.process_post(post)
+
+        print(str(len(page_posts)) + ' posts scraped')
+
+        self._posts.extend(page_posts)
 
     # TODO: Make asynchronous
     def process_post(self, post):
 
-        if post['comments']:
-            comments_paging = post['comments']['paging']
-            post['comments'] = post['comments']['data']
+        fields = []
+        for reaction_type in Reaction:
+            fields.append('reactions.type({0}).limit(0).summary(true).as({0})'.format(
+                reaction_type.name))
+
+        response = self.graph.get_object(id=post['id'], fields=','.join(fields))
+        post['reactions'] = {}
+        for reaction_type in Reaction:
+            post['reactions'][reaction_type.name.lower()] = response[reaction_type.name]['summary']['total_count']
+
+            # if 'comments' in post:
+        #     comments_paging = post['comments']['paging']
+        #     post['comments'] = post['comments']['data']
 
             # TODO: Call asynchronously
             # # Go to next page of comments
@@ -54,36 +78,40 @@ class FBScraper:
             #     else:
             #         comments_paging = {}
 
-        if post['reactions']:
-            reactions_paging = post['reactions']['paging']
-            post['reactions'] = post['reactions']['data']
+        # if 'reactions' in post:
+        #     reactions_paging = post['reactions']['paging']
+        #     post['reactions'] = post['reactions']['data']
+        #
+        #     # TODO: Call asynchronously
+        #     # Go to next page of reactions
+        #     while 'next' in reactions_paging:
+        #         next_url = reactions_paging['next']
+        #         response = json.loads(requests.get(next_url).text)
+        #         if 'data' in response:
+        #             post['reactions'].extend(response['data'])
+        #         if 'paging' in response:
+        #             reactions_paging = response['paging']
+        #         else:
+        #             reactions_paging = {}
 
-            # TODO: Call asynchronously
-            # # Go to next page of reactions
-            # while 'next' in reactions_paging:
-            #     next_url = reactions_paging['next']
-            #     response = json.loads(requests.get(next_url).text)
-            #     if 'data' in response:
-            #         post['reactions'].extend(response['data'])
-            #     if 'paging' in response:
-            #         reactions_paging = response['paging']
-            #     else:
-            #         reactions_paging = {}
-
-        aggregate(post)
+        # aggregate(post)
 
         return post
 
+    @property
+    def posts(self):
+        return self._posts
+
 
 class Reaction(Enum):
-    NONE = 1
+    # NONE = 1
     LIKE = 2
     LOVE = 3
     WOW = 4
     HAHA = 5
     SAD = 6
     ANGRY = 7
-    THANKFUL = 8
+    # THANKFUL = 8
 
 
 def aggregate(post):
@@ -92,17 +120,25 @@ def aggregate(post):
     :param post:
     :return:
     """
+    if 'message' not in post:
+        post['message'] = None
 
-    # Count the number of comments
-    if post['comments']:
-        post['comment_count'] = len(post['comments'])
+if __name__ == "__main__":
+    # stuff only to run when not called via 'import' here
+    app_id = sys.argv[1]
+    app_secret = sys.argv[2]
+    access_token = sys.argv[3]
 
-    # Count the number of each reaction type
-    if post['reactions']:
-        post['reaction_counts'] = {}
-        for reaction in post['reactions']:
-            type = reaction['type']
-            if type in post['reaction_counts']:
-                post['reaction_counts'][type] += 1
-            else:
-                post['reaction_counts'][type] = 0
+    file = open('pages.csv')
+    pages = [row.strip().split(',') for row in file]
+    file.close()
+    pages = [{'id': page[1], 'name': page[0]} for page in pages]
+
+    scraper = FBScraper(app_id, app_secret, access_token)
+
+    for page in pages:
+        scraper.get_posts(page['id'], POSTS_PER_PAGE)
+
+    # Write data to a file
+    with open('fb_data.json', 'w') as outfile:
+        json.dump(scraper.posts, outfile)
