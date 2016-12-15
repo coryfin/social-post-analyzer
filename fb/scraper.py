@@ -5,9 +5,6 @@ import sys
 from enum import Enum
 
 
-POSTS_PER_PAGE = 500
-
-
 class FBScraper:
 
     LIMIT = '25'
@@ -62,40 +59,6 @@ class FBScraper:
         for reaction_type in Reaction:
             post['reactions'][reaction_type.name.lower()] = response[reaction_type.name]['summary']['total_count']
 
-            # if 'comments' in post:
-        #     comments_paging = post['comments']['paging']
-        #     post['comments'] = post['comments']['data']
-
-            # TODO: Call asynchronously
-            # # Go to next page of comments
-            # while 'next' in comments_paging:
-            #     next_url = comments_paging['next']
-            #     response = json.loads(requests.get(next_url).text)
-            #     if 'data' in response:
-            #         post['comments'].extend(response['data'])
-            #     if 'paging' in response:
-            #         comments_paging = response['paging']
-            #     else:
-            #         comments_paging = {}
-
-        # if 'reactions' in post:
-        #     reactions_paging = post['reactions']['paging']
-        #     post['reactions'] = post['reactions']['data']
-        #
-        #     # TODO: Call asynchronously
-        #     # Go to next page of reactions
-        #     while 'next' in reactions_paging:
-        #         next_url = reactions_paging['next']
-        #         response = json.loads(requests.get(next_url).text)
-        #         if 'data' in response:
-        #             post['reactions'].extend(response['data'])
-        #         if 'paging' in response:
-        #             reactions_paging = response['paging']
-        #         else:
-        #             reactions_paging = {}
-
-        # aggregate(post)
-
         return post
 
     @property
@@ -128,6 +91,7 @@ if __name__ == "__main__":
     app_id = sys.argv[1]
     app_secret = sys.argv[2]
     access_token = sys.argv[3]
+    posts_per_page = sys.argv[4]
 
     file = open('pages.csv')
     pages = [row.strip().split(',') for row in file]
@@ -137,7 +101,7 @@ if __name__ == "__main__":
     scraper = FBScraper(app_id, app_secret, access_token)
 
     for page in pages:
-        scraper.get_posts(page['id'], POSTS_PER_PAGE)
+        scraper.get_posts(page['id'], posts_per_page)
 
     # Write data to a file
     with open('fb_data.json', 'w') as outfile:

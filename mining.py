@@ -59,7 +59,6 @@ frequent_ineffective = mine_frequent(ineffective_text, MIN_FREQ)
 interesting_effective = mine_interesting_and_frequent(effective_text, ineffective_text, MIN_FREQ, MAX_OPPOSING_FREQ)
 interesting_ineffective = mine_interesting_and_frequent(ineffective_text, effective_text, MIN_FREQ, MAX_OPPOSING_FREQ)
 
-
 print('Frequent in effective posts:')
 for itemset in frequent_effective:
     print('\t' + str(set(itemset)))
