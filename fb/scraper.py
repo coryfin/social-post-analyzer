@@ -88,21 +88,27 @@ def aggregate(post):
 
 if __name__ == "__main__":
     # stuff only to run when not called via 'import' here
-    app_id = sys.argv[1]
-    app_secret = sys.argv[2]
-    access_token = sys.argv[3]
-    posts_per_page = sys.argv[4]
 
-    file = open('pages.csv')
-    pages = [row.strip().split(',') for row in file]
-    file.close()
-    pages = [{'id': page[1], 'name': page[0]} for page in pages]
+    try:
+        app_id = sys.argv[1]
+        app_secret = sys.argv[2]
+        access_token = sys.argv[3]
+        posts_per_page = sys.argv[4]
 
-    scraper = FBScraper(app_id, app_secret, access_token)
+        file = open('pages.csv')
+        pages = [row.strip().split(',') for row in file]
+        file.close()
+        pages = [{'id': page[1], 'name': page[0]} for page in pages]
 
-    for page in pages:
-        scraper.get_posts(page['id'], posts_per_page)
+        scraper = FBScraper(app_id, app_secret, access_token)
 
-    # Write data to a file
-    with open('fb_data.json', 'w') as outfile:
-        json.dump(scraper.posts, outfile)
+        for page in pages:
+            scraper.get_posts(page['id'], posts_per_page)
+
+        # Write data to a file
+        with open('fb_data.json', 'w') as outfile:
+            json.dump(scraper.posts, outfile)
+
+    except IndexError:
+        print('Usage: python3 scraper.py <app-id> <app-secret> <access-token> <posts-per-page>')
+
