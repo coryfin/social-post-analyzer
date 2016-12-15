@@ -93,7 +93,7 @@ if __name__ == "__main__":
         app_id = sys.argv[1]
         app_secret = sys.argv[2]
         access_token = sys.argv[3]
-        posts_per_page = sys.argv[4]
+        posts_per_page = int(sys.argv[4])
 
         file = open('pages.csv')
         pages = [row.strip().split(',') for row in file]
