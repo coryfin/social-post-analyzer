@@ -5,7 +5,7 @@ from fb.scraper import Reaction
 from nltk.corpus import stopwords
 
 
-NEG_THRESHOLD = 0.1
+EFFECTIVENESS_THRESHOLD = 0.9
 
 
 def search_and_tag(filename, topics):
@@ -83,7 +83,8 @@ def is_effective(post):
             total_count = sum([val for key, val in post['reactions'].items()])
 
         if total_count != 0:
-            effective = negative * 1.0 / total_count < NEG_THRESHOLD
+            effectiveness = 1 - negative * 1.0 / total_count
+            effective = effectiveness >= EFFECTIVENESS_THRESHOLD
 
     return effective
 
