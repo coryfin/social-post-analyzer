@@ -1,0 +1,256 @@
+Without cleaning...
+file=twitter/abortion.csv
+min_sup=0.1,max_sup=0.1
+
+Frequent in effective posts:
+{"'"}:94,0.1123
+{'brt', 'abortion'}:143,0.1708
+{''}:179,0.2139
+{"httpsxe2x80xa6'"}:90,0.1075
+{'christmas', 'abortion'}:92,0.1099
+{'', 'abortion'}:97,0.1159
+{'brt'}:234,0.2796
+{"b'rt", 'abortion'}:417,0.4982
+{"b'rt", "httpsxe2x80xa6'"}:90,0.1075
+{'christmas'}:94,0.1123
+{'abortion'}:573,0.6846
+{'', 'brt'}:119,0.1422
+{"b'rt", 'christmas', 'abortion'}:92,0.1099
+{"b'rt", 'abortion', "httpsxe2x80xa6'"}:86,0.1027
+{'abortion', "httpsxe2x80xa6'"}:86,0.1027
+{"b'rt", 'christmas'}:94,0.1123
+{"b'rt", "'"}:94,0.1123
+{"b'rt"}:583,0.6965
+
+Interesting in effective posts:
+{"'"}:94,0.1123
+{'brt', 'abortion'}:143,0.1708
+{"b'rt"}:583,0.6965
+{"b'rt", 'abortion', "httpsxe2x80xa6'"}:86,0.1027
+{'christmas', 'abortion'}:92,0.1099
+{'', 'abortion'}:97,0.1159
+{'brt'}:234,0.2796
+{"b'rt", 'abortion'}:417,0.4982
+{"b'rt", "httpsxe2x80xa6'"}:90,0.1075
+{'christmas'}:94,0.1123
+{'', 'brt'}:119,0.1422
+{"httpsxe2x80xa6'"}:90,0.1075
+{"b'rt", 'christmas', 'abortion'}:92,0.1099
+{'abortion', "httpsxe2x80xa6'"}:86,0.1027
+{"b'rt", 'christmas'}:94,0.1123
+{"b'rt", "'"}:94,0.1123
+
+Frequent in ineffective posts:
+{'abortion'}:384,0.5606
+{''}:106,0.1547
+
+Interesting in ineffective posts:
+
+With b removed from beginning and RT removed
+file=twitter/abortion.csv
+threshold=0.9,min_sup=0.1,max_sup=0.1
+
+Frequent in effective posts:
+{"httpsxe2x80xa6'", 'abortion'}:86,0.1027
+{'', 'abortion'}:97,0.1159
+{''}:179,0.2139
+{'christmas'}:94,0.1123
+{'abortion'}:573,0.6846
+{"'"}:94,0.1123
+{"httpsxe2x80xa6'"}:90,0.1075
+{'christmas', 'abortion'}:92,0.1099
+
+Interesting in effective posts:
+{'', 'abortion'}:97,0.1159
+{"httpsxe2x80xa6'", 'abortion'}:86,0.1027
+{'christmas', 'abortion'}:92,0.1099
+{'christmas'}:94,0.1123
+{"'"}:94,0.1123
+{"httpsxe2x80xa6'"}:90,0.1075
+
+Frequent in ineffective posts:
+{'abortion'}:387,0.565
+{''}:106,0.1547
+
+Interesting in ineffective posts:
+
+With urls, blank words, apostophes, and hyphens removed
+{'abortion'}:573,0.6846
+{'christmas', 'abortion'}:92,0.1099
+{'christmas'}:94,0.1123
+
+Interesting in effective posts:
+{'christmas', 'abortion'}:92,0.1099
+{'christmas'}:94,0.1123
+
+Frequent in ineffective posts:
+{'abortion'}:387,0.565
+
+Interesting in ineffective posts:
+
+file=twitter/abortion.csv
+threshold=0.9,min_sup=0.1,max_sup=0.05
+
+Frequent in effective posts:
+{'christmas'}:94,0.1123
+{'abortion'}:573,0.6846
+{'abortion', 'christmas'}:92,0.1099
+
+Interesting in effective posts:
+
+Frequent in ineffective posts:
+{'abortion'}:387,0.565
+
+Interesting in ineffective posts:
+
+file=twitter/abortion.csv
+threshold=0.9,min_sup=0.2,max_sup=0.2
+
+Frequent in effective posts:
+{'abortion'}:573,0.6846
+
+Interesting in effective posts:
+
+Frequent in ineffective posts:
+{'abortion'}:387,0.565
+
+Interesting in ineffective posts:
+
+file=twitter/globalwarming.csv
+threshold=0.9,min_sup=0.1,max_sup=0.1
+
+Frequent in effective posts:
+{'global'}:1231,0.7796
+{"it's"}:220,0.1393
+{'climate', 'global'}:184,0.1165
+{'warming', 'global'}:1096,0.6941
+{'warming', 'global', "it's"}:180,0.114
+{'warming', "it's"}:214,0.1355
+{'climate'}:235,0.1488
+{'warming'}:1143,0.7239
+{'climate', 'warming', 'global'}:172,0.1089
+{"it's", 'global'}:180,0.114
+{'climate', 'warming'}:173,0.1096
+
+Interesting in effective posts:
+{"it's"}:220,0.1393
+{'warming', 'global', "it's"}:180,0.114
+{'warming', "it's"}:214,0.1355
+{'climate'}:235,0.1488
+{'climate', 'warming'}:173,0.1096
+{'climate', 'global'}:184,0.1165
+{"it's", 'global'}:180,0.114
+{'climate', 'warming', 'global'}:172,0.1089
+
+Frequent in ineffective posts:
+{'warming', 'global'}:1323,0.7233
+{'global'}:1485,0.8119
+{'warming'}:1369,0.7485
+
+Interesting in ineffective posts:
+
+file=twitter/globalwarming.csv
+threshold=0.9,min_sup=0.1,max_sup=0.05
+
+Frequent in effective posts:
+{"it's", 'warming'}:214,0.1355
+{'warming', 'global'}:1096,0.6941
+{"it's"}:220,0.1393
+{'warming', 'climate', 'global'}:172,0.1089
+{"it's", 'warming', 'global'}:180,0.114
+{'climate', 'global'}:184,0.1165
+{"it's", 'global'}:180,0.114
+{'climate'}:235,0.1488
+{'warming'}:1143,0.7239
+{'global'}:1231,0.7796
+{'warming', 'climate'}:173,0.1096
+
+Interesting in effective posts:
+
+Frequent in ineffective posts:
+{'global'}:1485,0.8119
+{'warming'}:1369,0.7485
+{'warming', 'global'}:1323,0.7233
+
+Interesting in ineffective posts:
+
+file=twitter/globalwarming.csv
+threshold=0.9,min_sup=0.2,max_sup=0.2
+
+Frequent in effective posts:
+{'global'}:1231,0.7796
+{'warming'}:1143,0.7239
+{'warming', 'global'}:1096,0.6941
+
+Interesting in effective posts:
+
+Frequent in ineffective posts:
+{'global'}:1485,0.8119
+{'warming'}:1369,0.7485
+{'warming', 'global'}:1323,0.7233
+
+Interesting in ineffective posts:
+
+file=twitter/immigration.csv
+threshold=0.9,min_sup=0.1,max_sup=0.1
+
+Frequent in effective posts:
+{'immigration'}:2188,0.5936
+
+Interesting in effective posts:
+
+Frequent in ineffective posts:
+{'immigration'}:2240,0.7339
+
+Interesting in ineffective posts:
+
+file=twitter/immigration.csv
+threshold=0.9,min_sup=0.05,max_sup=0.05
+
+Frequent in effective posts:
+{'davidjo52951945'}:258,0.07
+{'new'}:338,0.0917
+{'amp'}:269,0.073
+{'labour'}:256,0.0695
+{'immigration'}:2188,0.5936
+{'eu'}:323,0.0876
+{'people'}:276,0.0749
+{'trump'}:235,0.0638
+{'amp', 'immigration'}:224,0.0608
+{'swiss'}:187,0.0507
+{'immigration', 'eu'}:259,0.0703
+{'immigration', 'labour'}:195,0.0529
+
+Interesting in effective posts:
+{'davidjo52951945'}:258,0.07
+{'new'}:338,0.0917
+{'people'}:276,0.0749
+{'amp'}:269,0.073
+{'amp', 'immigration'}:224,0.0608
+{'swiss'}:187,0.0507
+{'immigration', 'eu'}:259,0.0703
+{'immigration', 'labour'}:195,0.0529
+
+Frequent in ineffective posts:
+{'nj'}:165,0.0541
+{'ny'}:196,0.0642
+{'labour'}:167,0.0547
+{'immigration'}:2240,0.7339
+{'immigration', 'nj'}:162,0.0531
+{'eu'}:154,0.0505
+{'illegal'}:184,0.0603
+{'immigration', 'ny'}:193,0.0632
+{'trump'}:186,0.0609
+{'ny', 'nj'}:164,0.0537
+{'immigration', 'illegal'}:172,0.0564
+{'immigration', 'ny', 'nj'}:161,0.0528
+
+Interesting in ineffective posts:
+{'ny'}:196,0.0642
+{'illegal'}:184,0.0603
+{'immigration', 'ny'}:193,0.0632
+{'immigration', 'ny', 'nj'}:161,0.0528
+{'immigration', 'illegal'}:172,0.0564
+{'nj'}:165,0.0541
+{'ny', 'nj'}:164,0.0537
+{'immigration', 'nj'}:162,0.0531

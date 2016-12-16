@@ -32,6 +32,12 @@ def format_post(post):
     return post['from']['id'], post['topic'], post['message'], effectiveness(post)
 
 
+def clean_twitter_text(text):
+    # Strip off the b from the beginning and remove any 'RT' occurences
+    cleaned = text[1:].replace('RT ', '')
+    return cleaned
+
+
 def text_to_list(text, remove_stop_words=False, remove_duplicates=False):
     """
     Converts text to a list of words, with punctuation removed and all words lowercased
@@ -46,7 +52,7 @@ def text_to_list(text, remove_stop_words=False, remove_duplicates=False):
     text = text.translate(str.maketrans('', '', string.punctuation.replace("'", '').replace('-', '')))
 
     # Split words and convert to lower case
-    words = [word.lower() for word in text.split(' ')]
+    words = [word.strip().lower() for word in text.split(' ')]
 
     if remove_stop_words:
         words = [word for word in words if word not in stopwords.words('english')]
@@ -54,7 +60,22 @@ def text_to_list(text, remove_stop_words=False, remove_duplicates=False):
     if remove_duplicates:
         words = remove_duplicates(words)
 
+    # Strip quotes and remove urls, blank words, single apostrophes, and single hyphens
+    words = [strip_quotes(word) for word in words if 'http' not in word and word != '' and word != "'" and word != '-']
+
     return words
+
+
+def strip_quotes(word):
+    if word.startswith('"'):
+        word = word[1:]
+    if word.endswith('"'):
+        word = word[:-1]
+    if word.startswith("'"):
+        word = word[1:]
+    if word.endswith("'"):
+        word = word[:-1]
+    return word
 
 
 def remove_duplicates(items):

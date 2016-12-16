@@ -1,4 +1,4 @@
-from fb.preprocessing import text_to_list, remove_duplicates
+from fb.preprocessing import text_to_list, clean_twitter_text
 from pymining import itemmining
 import csv
 import sys
@@ -54,24 +54,29 @@ def uniquify(items):
 if __name__ == "__main__":
 
     try:
-        param = sys.argv[1]
+        data_file = sys.argv[1]
+        param = sys.argv[2]
         effectiveness_threshold = float(param)
 
         # Note: MAX_OPPOSING_FREQ should less than or equal to MIN_FREQ
-        min_sup = float(sys.argv[2])
-        max_sup = float(sys.argv[3])
+        min_sup = float(sys.argv[3])
+        max_sup = float(sys.argv[4])
 
         # noinspection PyUnboundLocalVariable
         if max_sup > min_sup:
             print('<max-sup> must be less than or equal to <min-sup>')
         else:
 
-            with open('fb/fb_data.csv') as file:
+            with open(data_file) as file:
                 reader = csv.reader(file, delimiter=',', escapechar='\\')
                 data = [row for row in reader]
 
             header = data[0]
             data = data[1:]
+
+            for row in data:
+                if len(row) > 3:
+                    print(str(row))
 
             # Handles two cases:
             # 1. 'effective' attribute is given
@@ -91,11 +96,16 @@ if __name__ == "__main__":
             else:
                 effective_col = header.index('effective')
                 for row in data:
-                    row[effective_col] = row[effective_col] == 'True'
+                    if row[effective_col] == 'True' or row[effective_col] == 'T':
+                        row[effective_col] = True
+                    elif row[effective_col] == 'False' or row[effective_col] == 'F':
+                        row[effective_col] = False
+                    else:
+                        row[effective_col] = None
 
             # Column indices
-            author_col = header.index('author')
-            topic_col = header.index('topic')
+            # author_col = header.index('author')
+            # topic_col = header.index('topic')
             text_col = header.index('text')
             effective_col = header.index('effective')
 
@@ -103,9 +113,14 @@ if __name__ == "__main__":
             effective_data = [row for row in data if row[effective_col]]
             ineffective_data = [row for row in data if not row[effective_col]]
 
-            # Convert text to a list of words
-            effective_text = [uniquify(text_to_list(row[text_col], True)) for row in effective_data]
-            ineffective_text = [uniquify(text_to_list(row[text_col], True)) for row in ineffective_data]
+            if 'twitter' in data_file:
+                # Convert text to a list of words
+                effective_text = [uniquify(text_to_list(clean_twitter_text(row[text_col]), True)) for row in effective_data]
+                ineffective_text = [uniquify(text_to_list(clean_twitter_text(row[text_col]), True)) for row in ineffective_data]
+            else:
+                # Convert text to a list of words
+                effective_text = [uniquify(text_to_list(row[text_col], True)) for row in effective_data]
+                ineffective_text = [uniquify(text_to_list(row[text_col], True)) for row in ineffective_data]
 
             # Find frequent itemsets in both sets
             frequent_effective = mine_frequent(effective_text, min_sup)
@@ -115,6 +130,7 @@ if __name__ == "__main__":
             interesting_effective = mine_interesting_and_frequent(effective_text, ineffective_text, min_sup, max_sup)
             interesting_ineffective = mine_interesting_and_frequent(ineffective_text, effective_text, min_sup, max_sup)
 
+            print('file=' + data_file)
             print('threshold=' + str(effectiveness_threshold) + ',min_sup=' + str(min_sup) + ',max_sup=' + str(max_sup))
             print()
 
@@ -138,7 +154,5 @@ if __name__ == "__main__":
                 print(str(set(k)) + ':' + str(v) + ',' + str(round(v / len(ineffective_data), 4)))
 
     except ValueError:
-        raise
-        #
-        # print('usages:')
-        # print('\tpython3 mining.py <effectiveness-threshold> <min-sup> <max-sup>')
+        print('usages:')
+        print('\tpython3 mining.py <effectiveness-threshold> <min-sup> <max-sup>')
