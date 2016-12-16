@@ -4,6 +4,7 @@ import csv
 import sys
 import copy
 
+
 def mine_frequent(transactions, min_sup):
 
     # Find frequent itemsets in transactions
@@ -12,15 +13,19 @@ def mine_frequent(transactions, min_sup):
     return itemmining.relim(input, min_support=min_sup_count)
 
 
-def mine_interesting_and_frequent(transactions, opposing_transactions, min_sup, max_sup):
+def mine_interesting_and_frequent(transactions, contrasting_transactions, min_sup, max_sup):
 
     # Find frequent itemsets in transactions
     frequent_itemsets = mine_frequent(transactions, min_sup)
 
-    # Find frequent itemsets in opposing set using max_freq as min_freq
-    frequent_opposing_itemsets = mine_frequent(opposing_transactions, max_sup)
+    # Count frequency in contrasting set
+    max_sup_count = int(round(max_sup * len(contrasting_transactions)))
+    contrasting_count = {}
+    for itemset in frequent_itemsets:
+        contrasting_matches = [row for row in contrasting_transactions if contains(row, itemset)]
+        contrasting_count[itemset] = len(contrasting_matches)
 
-    return {k: v for k, v in frequent_itemsets.items() if k not in frequent_opposing_itemsets}
+    return {k: v for k, v in frequent_itemsets.items() if contrasting_count[k] < max_sup_count}
 
 
 def contains(transaction, itemset):
@@ -109,39 +114,28 @@ if __name__ == "__main__":
             # Find interesting frequent itemsets
             interesting_effective = mine_interesting_and_frequent(effective_text, ineffective_text, min_sup, max_sup)
             interesting_ineffective = mine_interesting_and_frequent(ineffective_text, effective_text, min_sup, max_sup)
-            #
-            # print('Frequent in effective posts:')
-            # for itemset in frequent_effective:
-            #     print('\t' + str(set(itemset)))
-            #
-            # print('Interesting in effective posts:')
-            # for itemset in interesting_effective:
-            #     print('\t' + str(set(itemset)))
-            #
-            # print('Frequent in ineffective posts:')
-            # for itemset in frequent_ineffective:
-            #     print('\t' + str(set(itemset)))
-            #
-            # print('Interesting in ineffective posts:')
-            # for itemset in interesting_ineffective:
-            #     print('\t' + str(set(itemset)))
 
+            print('threshold=' + str(effectiveness_threshold) + ',min_sup=' + str(min_sup) + ',max_sup=' + str(max_sup))
+            print()
 
             print('Frequent in effective posts:')
             for k, v in frequent_effective.items():
-                print('\t' + str(set(k)) + ':' + str(v))
+                print(str(set(k)) + ':' + str(v) + ',' + str(round(v / len(effective_data), 4)))
+            print()
 
             print('Interesting in effective posts:')
             for k, v in interesting_effective.items():
-                print('\t' + str(set(k)) + ':' + str(v))
+                print(str(set(k)) + ':' + str(v) + ',' + str(round(v / len(effective_data), 4)))
+            print()
 
             print('Frequent in ineffective posts:')
             for k, v in frequent_ineffective.items():
-                print('\t' + str(set(k)) + ':' + str(v))
+                print(str(set(k)) + ':' + str(v) + ',' + str(round(v / len(ineffective_data), 4)))
+            print()
 
             print('Interesting in ineffective posts:')
             for k, v in interesting_ineffective.items():
-                print('\t' + str(set(k)) + ':' + str(v))
+                print(str(set(k)) + ':' + str(v) + ',' + str(round(v / len(ineffective_data), 4)))
 
     except ValueError:
         raise
