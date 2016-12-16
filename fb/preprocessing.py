@@ -5,9 +5,6 @@ from fb.scraper import Reaction
 from nltk.corpus import stopwords
 
 
-EFFECTIVENESS_THRESHOLD = 0.9
-
-
 def search_and_tag(filename, topics):
     """
     Searches the json file for posts that contain any keywords in the given topics and tags them
@@ -30,11 +27,8 @@ def search_and_tag(filename, topics):
 
 def format_post(post):
 
-    # Compute effectiveness
-    effective = is_effective(post)
-
     # Format the post
-    return post['from']['id'], post['topic'], post['message'], effective
+    return post['from']['id'], post['topic'], post['message'], effectiveness(post)
 
 
 def text_to_list(text, remove_stop_words):
@@ -60,7 +54,7 @@ def text_to_list(text, remove_stop_words):
 
 def contains(text, keyword):
 
-    # Get individual words, lowercased
+    # Get individual words, lower-cased
     words = text_to_list(text, False)
 
     # Search the text
@@ -72,8 +66,8 @@ def contains(text, keyword):
         return False
 
 
-def is_effective(post):
-    effective = None
+def effectiveness(post):
+    result = None
     if 'reactions' in post:
         positive = post['reactions'][Reaction.LIKE.name.lower()] + post['reactions'][Reaction.LOVE.name.lower()]
         negative = post['reactions'][Reaction.ANGRY.name.lower()]
@@ -83,10 +77,9 @@ def is_effective(post):
             total_count = sum([val for key, val in post['reactions'].items()])
 
         if total_count != 0:
-            effectiveness = 1 - negative * 1.0 / total_count
-            effective = effectiveness >= EFFECTIVENESS_THRESHOLD
+            result = 1 - negative * 1.0 / total_count
 
-    return effective
+    return result
 
 
 if __name__ == "__main__":
@@ -96,13 +89,28 @@ if __name__ == "__main__":
 
     with open('../topics.json') as file:
         topics = json.load(file)
-    posts = search_and_tag('fb_data_combined.json', topics)
+    posts = search_and_tag('fb_data.json', topics)
     posts = [format_post(post) for post in posts]
 
     with open('fb_data.csv', 'w') as file:
         writer = csv.writer(file, delimiter=',', escapechar='\\', quoting=csv.QUOTE_MINIMAL)
-        writer.writerow(['author', 'topic', 'text', 'effective'])
+        writer.writerow(['author', 'topic', 'text', 'effectiveness'])
         for post in posts:
             writer.writerow(post)
+
+    with open('thresholds.csv', 'r') as file:
+        thresholds = [float(row.strip()) for row in file]
+        summary = []
+        for threshold in thresholds:
+            null_vals = [post for post in posts if post[3] is None]
+            effective = [post for post in posts if post[3] is not None and post[3] >= threshold]
+            ineffective = [post for post in posts if post[3] is not None and post[3] < threshold]
+            summary.append((threshold, len(effective), len(ineffective), len(null_vals)))
+
+    with open('fb_summary.csv', 'w') as file:
+        writer = csv.writer(file, delimiter=',')
+        writer.writerow(['threshold', 'effective', 'ineffective', 'null'])
+        for row in summary:
+            writer.writerow(row)
 
     print(str(len(posts)) + ' posts selected and formatted for analysis.')
