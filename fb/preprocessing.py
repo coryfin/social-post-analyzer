@@ -81,10 +81,9 @@ def is_effective(post):
             total_count = post['reactions']['all']
         else:
             total_count = sum([val for key, val in post['reactions'].items()])
-        if negative * 1.0 / total_count < NEG_THRESHOLD:
-            effective = True
-        else:
-            effective = False
+
+        if total_count != 0:
+            effective = negative * 1.0 / total_count < NEG_THRESHOLD
 
     return effective
 
@@ -96,7 +95,7 @@ if __name__ == "__main__":
 
     with open('../topics.json') as file:
         topics = json.load(file)
-    posts = search_and_tag('fb_data_master.json', topics)
+    posts = search_and_tag('fb_data_combined.json', topics)
     posts = [format_post(post) for post in posts]
 
     with open('fb_data.csv', 'w') as file:
@@ -104,3 +103,5 @@ if __name__ == "__main__":
         writer.writerow(['author', 'topic', 'text', 'effective'])
         for post in posts:
             writer.writerow(post)
+
+    print(str(len(posts)) + ' posts selected and formatted for analysis.')

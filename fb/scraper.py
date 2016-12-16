@@ -56,14 +56,14 @@ class FBScraper:
             id=page_id, connection_name=self.FEED, limit=self.LIMIT,
             fields=','.join(fields))
 
-        page_posts = response['data']
+        page_posts = [post for post in response['data'] if 'message' in post]
 
         # Go to the next page of posts
         while len(page_posts) < num_posts and 'paging' in response and 'next' in response['paging']:
             next_url = response['paging']['next']
             response = json.loads(requests.get(next_url).text)
             if 'data' in response:
-                page_posts.extend(response['data'])
+                page_posts.extend([post for post in response['data'] if 'message' in post])
 
         return page_posts
 
