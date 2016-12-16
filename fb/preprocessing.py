@@ -77,8 +77,11 @@ def is_effective(post):
     if 'reactions' in post:
         positive = post['reactions'][Reaction.LIKE.name.lower()] + post['reactions'][Reaction.LOVE.name.lower()]
         negative = post['reactions'][Reaction.ANGRY.name.lower()]
-        all = sum([val for val in post['reactions'].values()])
-        if negative * 1.0 / all < NEG_THRESHOLD:
+        if 'all' in post['reactions']:
+            total_count = post['reactions']
+        else:
+            total_count = sum([val for key, val in post['reactions'].items() if key != 'all'])
+        if negative * 1.0 / total_count < NEG_THRESHOLD:
             effective = True
         else:
             effective = False
