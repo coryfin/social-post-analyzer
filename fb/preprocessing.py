@@ -3,6 +3,7 @@ import csv
 import string
 from fb.scraper import Reaction
 from nltk.corpus import stopwords
+from collections import OrderedDict
 
 
 def search_and_tag(filename, topics):
@@ -31,11 +32,12 @@ def format_post(post):
     return post['from']['id'], post['topic'], post['message'], effectiveness(post)
 
 
-def text_to_list(text, remove_stop_words):
+def text_to_list(text, remove_stop_words=False, remove_duplicates=False):
     """
     Converts text to a list of words, with punctuation removed and all words lowercased
     :param text:
     :param remove_stop_words:
+    :param remove_duplicates:
     :return:
     """
     # Remove punctuation
@@ -49,7 +51,14 @@ def text_to_list(text, remove_stop_words):
     if remove_stop_words:
         words = [word for word in words if word not in stopwords.words('english')]
 
+    if remove_duplicates:
+        words = remove_duplicates(words)
+
     return words
+
+
+def remove_duplicates(items):
+    return list(OrderedDict.fromkeys(items))
 
 
 def contains(text, keyword):
