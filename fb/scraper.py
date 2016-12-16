@@ -46,6 +46,10 @@ class FBScraper:
 
         self._posts.extend(page_posts)
 
+        # Save posts to disk in case of a crash for a particular page
+        with open('fb_data.json', 'w') as file:
+            json.dump(self.posts, file)
+
     def get_posts_with_fields(self, page_id, num_posts, fields):
 
         response = self.graph.get_connections(
