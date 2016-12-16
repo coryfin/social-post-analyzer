@@ -78,9 +78,9 @@ def is_effective(post):
         positive = post['reactions'][Reaction.LIKE.name.lower()] + post['reactions'][Reaction.LOVE.name.lower()]
         negative = post['reactions'][Reaction.ANGRY.name.lower()]
         if 'all' in post['reactions']:
-            total_count = post['reactions']
+            total_count = post['reactions']['all']
         else:
-            total_count = sum([val for key, val in post['reactions'].items() if key != 'all'])
+            total_count = sum([val for key, val in post['reactions'].items()])
         if negative * 1.0 / total_count < NEG_THRESHOLD:
             effective = True
         else:
@@ -96,7 +96,7 @@ if __name__ == "__main__":
 
     with open('../topics.json') as file:
         topics = json.load(file)
-    posts = search_and_tag('fb_data.json', topics)
+    posts = search_and_tag('fb_data_master.json', topics)
     posts = [format_post(post) for post in posts]
 
     with open('fb_data.csv', 'w') as file:
