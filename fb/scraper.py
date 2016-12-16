@@ -2,7 +2,9 @@ import facebook
 import requests
 import json
 import sys
+import time
 from enum import Enum
+from collections import defaultdict
 
 
 class FBScraper:
@@ -20,10 +22,31 @@ class FBScraper:
     # TODO: make asynchronous
     def get_posts(self, page_id, num_posts):
 
+        start = time.time()
         print("Scraping posts for page id=" + str(page_id), end='...')
 
-        # fields = ['message', 'from', 'comments.limit({0})'.format(self.LIMIT)]
-        fields = ['message', 'from']
+        # Get posts with total reaction count
+        fields = ['message', 'from', 'reactions.limit(0).summary(true)']
+        page_posts = self.get_posts_with_fields(page_id, num_posts, fields)
+
+        # Get posts with reaction count by type
+        reactions = {}
+        for reaction_type in Reaction:
+            fields = ['message', 'from', 'reactions.type({0}).limit(0).summary(true)'.format(reaction_type.name)]
+            posts_with_reaction_count = self.get_posts_with_fields(page_id, 2 * num_posts, fields)
+            counts = {post['id']: post['reactions']['summary']['total_count'] for post in posts_with_reaction_count}
+            reactions[reaction_type.name.lower()] = counts
+        reactions = self.renest(reactions)
+
+        # Join the posts
+        self.join_post_with_reactions(page_posts, reactions)
+
+        end = time.time()
+        print(str(len(page_posts)) + ' posts scraped in ' + str(round(end - start, 2)) + ' seconds')
+
+        self._posts.extend(page_posts)
+
+    def get_posts_with_fields(self, page_id, num_posts, fields):
 
         response = self.graph.get_connections(
             id=page_id, connection_name=self.FEED, limit=self.LIMIT,
@@ -38,28 +61,38 @@ class FBScraper:
             if 'data' in response:
                 page_posts.extend(response['data'])
 
-        # Process the posts (format fields, get additional comments, reactions, etc.)
-        for post in page_posts:
-            self.process_post(post)
+        return page_posts
 
-        print(str(len(page_posts)) + ' posts scraped')
+    def renest(self, reactions):
+        """
+        Switches the order of the nesting of reactions dictionary
+        http://stackoverflow.com/questions/2273691/pythonic-way-to-reverse-nested-dictionaries
+        :param reactions:
+        :return:
+        """
+        flipped = defaultdict(dict)
+        for key, val in reactions.items():
+            for subkey, subval in val.items():
+                flipped[subkey][key] = subval
 
-        self._posts.extend(page_posts)
+        return dict(flipped)
 
-    # TODO: Make asynchronous
-    def process_post(self, post):
+    def join_post_with_reactions(self, posts, reactions):
+        """
+        Joins posts with reaction counts for certain reaction types
+        :param posts:
+        :param reactions: a nested dictionary. Reaction counts for a given reaction type and post id are accessed
+            via reactions[reaction_type][post_id]
+        :return:
+        """
 
-        fields = []
-        for reaction_type in Reaction:
-            fields.append('reactions.type({0}).limit(0).summary(true).as({0})'.format(
-                reaction_type.name))
-
-        response = self.graph.get_object(id=post['id'], fields=','.join(fields))
-        post['reactions'] = {}
-        for reaction_type in Reaction:
-            post['reactions'][reaction_type.name.lower()] = response[reaction_type.name]['summary']['total_count']
-
-        return post
+        for post in posts:
+            total_count = post['reactions']['summary']['total_count']
+            try:
+                post['reactions'] = reactions[post['id']]
+            except KeyError:
+                print('\nPost ' + post['id'] + ' not in response from reaction count call!\n')
+            post['reactions']['all'] = total_count
 
     @property
     def posts(self):
