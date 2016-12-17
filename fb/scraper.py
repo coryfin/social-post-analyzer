@@ -143,7 +143,7 @@ if __name__ == "__main__":
             scraper.get_posts(page['id'], posts_per_page)
 
         # Write data to a file
-        with open('fb_data.json', 'w') as outfile:
+        with open('../misc/fb_data.json', 'w') as outfile:
             json.dump(scraper.posts, outfile)
 
     except IndexError:

@@ -119,10 +119,10 @@ if __name__ == "__main__":
 
     with open('../topics.json') as file:
         topics = json.load(file)
-    posts = search_and_tag('fb_data.json', topics)
+    posts = search_and_tag('../misc/fb_data.json', topics)
     posts = [format_post(post) for post in posts]
 
-    with open('fb_data.csv', 'w') as file:
+    with open('../data/fb_data.csv', 'w') as file:
         writer = csv.writer(file, delimiter=',', escapechar='\\', quoting=csv.QUOTE_MINIMAL)
         writer.writerow(['author', 'topic', 'text', 'effectiveness'])
         for post in posts:
@@ -137,7 +137,7 @@ if __name__ == "__main__":
             ineffective = [post for post in posts if post[3] is not None and post[3] < threshold]
             summary.append((threshold, len(effective), len(ineffective), len(null_vals)))
 
-    with open('fb_summary.csv', 'w') as file:
+    with open('../misc/fb_summary.csv', 'w') as file:
         writer = csv.writer(file, delimiter=',')
         writer.writerow(['threshold', 'effective', 'ineffective', 'null'])
         for row in summary:

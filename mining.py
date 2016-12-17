@@ -6,7 +6,6 @@ import copy
 
 
 def mine_frequent(transactions, min_sup):
-
     # Find frequent itemsets in transactions
     input = itemmining.get_relim_input(transactions)
     min_sup_count = int(round(min_sup * len(transactions)))
@@ -14,7 +13,6 @@ def mine_frequent(transactions, min_sup):
 
 
 def mine_interesting_and_frequent(transactions, contrasting_transactions, min_sup, max_sup):
-
     # Find frequent itemsets in transactions
     frequent_itemsets = mine_frequent(transactions, min_sup)
 
@@ -58,14 +56,18 @@ if __name__ == "__main__":
         param = sys.argv[2]
         effectiveness_threshold = float(param)
 
-        # Note: MAX_OPPOSING_FREQ should less than or equal to MIN_FREQ
         min_sup = float(sys.argv[3])
         max_sup = float(sys.argv[4])
 
-        # noinspection PyUnboundLocalVariable
         if max_sup > min_sup:
-            print('<max-sup> must be less than or equal to <min-sup>')
+            print('<min-sup-b> must be less than or equal to <min-sup-a>')
         else:
+
+            print('Finding patterns in dataset ' + data_file)
+            print('effectiveness_threshold=' + str(effectiveness_threshold))
+            print('min_sup_a=' + str(min_sup))
+            print('min_sup_b=' + str(max_sup))
+            print()
 
             with open(data_file) as file:
                 reader = csv.reader(file, delimiter=',', escapechar='\\')
@@ -73,10 +75,6 @@ if __name__ == "__main__":
 
             header = data[0]
             data = data[1:]
-
-            for row in data:
-                if len(row) > 3:
-                    print(str(row))
 
             # Handles two cases:
             # 1. 'effective' attribute is given
@@ -115,8 +113,10 @@ if __name__ == "__main__":
 
             if 'twitter' in data_file:
                 # Convert text to a list of words
-                effective_text = [uniquify(text_to_list(clean_twitter_text(row[text_col]), True)) for row in effective_data]
-                ineffective_text = [uniquify(text_to_list(clean_twitter_text(row[text_col]), True)) for row in ineffective_data]
+                effective_text = [uniquify(text_to_list(clean_twitter_text(row[text_col]), True)) for row in
+                                  effective_data]
+                ineffective_text = [uniquify(text_to_list(clean_twitter_text(row[text_col]), True)) for row in
+                                    ineffective_data]
             else:
                 # Convert text to a list of words
                 effective_text = [uniquify(text_to_list(row[text_col], True)) for row in effective_data]
@@ -130,29 +130,15 @@ if __name__ == "__main__":
             interesting_effective = mine_interesting_and_frequent(effective_text, ineffective_text, min_sup, max_sup)
             interesting_ineffective = mine_interesting_and_frequent(ineffective_text, effective_text, min_sup, max_sup)
 
-            print('file=' + data_file)
-            print('threshold=' + str(effectiveness_threshold) + ',min_sup=' + str(min_sup) + ',max_sup=' + str(max_sup))
-            print()
-
-            print('Frequent in effective posts:')
-            for k, v in frequent_effective.items():
-                print(str(set(k)) + ':' + str(v) + ',' + str(round(v / len(effective_data), 4)))
-            print()
-
-            print('Interesting in effective posts:')
+            print('Discriminating itemsets for effective posts:')
             for k, v in interesting_effective.items():
-                print(str(set(k)) + ':' + str(v) + ',' + str(round(v / len(effective_data), 4)))
+                print(str(set(k)) + ': frequency=' + str(v) + ', support=' + str(round(v / len(effective_data), 4)))
             print()
 
-            print('Frequent in ineffective posts:')
-            for k, v in frequent_ineffective.items():
-                print(str(set(k)) + ':' + str(v) + ',' + str(round(v / len(ineffective_data), 4)))
-            print()
-
-            print('Interesting in ineffective posts:')
+            print('Discriminating itemsets for ineffective posts:')
             for k, v in interesting_ineffective.items():
-                print(str(set(k)) + ':' + str(v) + ',' + str(round(v / len(ineffective_data), 4)))
+                print(str(set(k)) + ': frequency=' + str(v) + ', support=' + str(round(v / len(ineffective_data), 4)))
 
-    except ValueError:
-        print('usages:')
-        print('\tpython3 mining.py <effectiveness-threshold> <min-sup> <max-sup>')
+    except (ValueError, IndexError):
+        print('usage:')
+        print('\tpython3 mining.py <dataset> <effectiveness-threshold> <min-sup-a> <max-sup-b>')
